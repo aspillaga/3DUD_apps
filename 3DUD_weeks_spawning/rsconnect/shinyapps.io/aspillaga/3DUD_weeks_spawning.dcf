@@ -1,0 +1,12 @@
+name: 3DUD_weeks_spawning
+title: 3DUD_weeks_spawning
+username:
+account: aspillaga
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 490964
+bundleId: 1780516
+url: https://aspillaga.shinyapps.io/3DUD_weeks_spawning/
+when: 1545564159.21375
+asMultiple: FALSE
+asStatic: FALSE
