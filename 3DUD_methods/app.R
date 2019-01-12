@@ -17,13 +17,15 @@ library(plotly)
 
 # Load topography
 load("./data/topography.rda")
-# Load individual contours obtained with different methods
-load("./data/contours_dentex.rda")
-load("./data/contours_dentex_no_topo.rda")
-load("./data/contours_dentex_kde_coa.rda")
+
+# Contour files
+files <- list.files(path = "./data/", pattern = "(cont_)", full.names = TRUE)
+ind.files <- unlist(strsplit(files, "_"))[1:4 == 3]
+cont.files <- substr(unlist(strsplit(files, "_"))[1:4 == 4], 1, 2)
+method.files <- unlist(strsplit(files, "_"))[1:4 == 2]
 
 # List of individuals and colors to plot the 3D-UDs
-ind <- names(contours)
+ind <- unique(ind.files)
 names(ind) <- paste0("Dentex #", substr(ind, start = 7, stop = 9))
 
 col1 <- c("#C22618", "#F08300", "#FFDD06", "#CECE00", "#15892E",
@@ -35,10 +37,14 @@ col2 <- c("#E3817D", "#F7B66F", "#FFE97B", "#E8E697", "#9ACCA3",
 col3 <- c("#9B6161", "#AF8255", "#B2A054", "#B2B077", "#779E7D",
           "#7DA097", "#6B96A4", "#567884", "#9B7B8F", "#6E667F",
           "#C1B5B2", "#93857D", "#717070")
+colors <- list(topo = col1, notopo = col2, kde = col3)
+
+labels <- list(topo = "3D-UD - Topography", notopo = "3D-UD - Null Topography",
+               kde = "3D Kernel")
 
 # List of UD probability contours
-prob <- names(contours[[1]])
-names(prob) <- paste0(as.numeric(prob) * 100, "%")
+prob <- unique(cont.files)
+names(prob) <- paste0(prob, "%")
 
 
 # Define UI for the app --------------------------------------------------------
@@ -87,7 +93,7 @@ ui <- fluidPage(
                        h4("Method used to compute 3D-UDs"),
                        choices = list("3D-UD including topography" = "topo",
                                       "3D-UD using a null topography" = "notopo",
-                                      "3D kernel estimation" = "kernel"),
+                                      "3D kernel estimation" = "kde"),
                        selected = "topo"),
     
     # Individuals
@@ -156,6 +162,7 @@ server <- function(input, output) {
 
   # Reactive button to make the plot
   plot <- eventReactive(input$button, {
+    
     # Topography
     if (!"topo" %in% input$topofeat) p <- p.notopo
     
@@ -171,32 +178,22 @@ server <- function(input, output) {
                     facecolor = rep("#9BD3F4", 3))
     }
     
-    # Add 3D UDs
-    for (i in input$method) {
+    # Load and add 3D UDs
+    for (m in input$method) {
       
-      if (i == "topo") {
-        c <- contours[[input$ind]][[input$level]]
-        col.cont <- col1[ind == input$ind]
-        name <- paste0(names(ind)[ind == input$ind], "\n", 
-                       "3D-UD - Topography")
-      }
-      if (i == "notopo") {
-        c <- contours.notopo[[input$ind]][[input$level]]
-        col.cont <- col2[ind == input$ind]
-        name <- paste0(names(ind)[ind == input$ind], "\n", 
-                       "3D-UD - Null topography")
-      }
-      if (i == "kernel") {
-        c <- contours.kde[[input$ind]][[input$level]]
-        col.cont <- col3[ind == input$ind]
-        name <- paste0(names(ind)[ind == input$ind], "\n", 
-                       "3D Kernel")
-      }
+      i <- input$ind
+    
+      indx <- which(ind.files == i & method.files == m & cont.files == input$level)
+      load(files[indx])
       
-      p <- add_mesh(p, x = c$contour[, 1], y = c$contour[, 2],
-                    z = -c$contour[, 3],
-                    i = c$indx[, 1], j = c$indx[, 2], k = c$indx[, 3],
-                    facecolor = rep(col.cont, nrow(c$indx)),
+      col.cont <- colors[[m]][ind == i]
+      name <- paste0(names(ind)[ind == i], "\n", labels[[m]])
+      
+      p <- add_mesh(p, x = contour$contour[, 1], y = contour$contour[, 2],
+                    z = -contour$contour[, 3],
+                    i = contour$indx[, 1], j = contour$indx[, 2], 
+                    k = contour$indx[, 3],
+                    facecolor = rep(col.cont, nrow(contour$indx)),
                     opacity = input$opac, name = name, hoverinfo = "name",
                     flatshading = TRUE)
     }

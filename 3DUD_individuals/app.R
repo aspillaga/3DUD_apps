@@ -17,19 +17,23 @@ library(plotly)
 
 # Load topography
 load("./data/topography.rda")
-# Load individual contours
-load("./data/contours_dentex.rda")
+
+# Contour files
+files <- list.files(path = "./data/", pattern = "(cont_)", full.names = TRUE)
+ind.files <- unlist(strsplit(files, "_"))[1:4 == 3]
+cont.files <- substr(unlist(strsplit(files, "_"))[1:4 == 4], 1, 2)
 
 # List of individuals and colors to plot the 3D-UDs
-ind <- names(contours)
+ind <- unique(ind.files)
 names(ind) <- paste0("Dentex #", substr(ind, start = 7, stop = 9))
 col <- c("#C22618", "#F08300", "#FFDD06", "#CECE00", "#15892E",
          "#6ABFAA", "#00AEEA", "#005D99", "#D94E96", "#664882",
          "#DFB2A2", "#936037", "#4C4C47")
 
 # List of UD probability contours
-prob <- names(contours[[1]])
-names(prob) <- paste0(as.numeric(prob) * 100, "%")
+# List of UD probability contours
+prob <- unique(cont.files)
+names(prob) <- paste0(prob, "%")
 
 
 # Define UI for the app --------------------------------------------------------
@@ -156,15 +160,21 @@ server <- function(input, output) {
     
     # Add individual UD contours
     for (i in input$ind) {
-      c <- contours[[i]][[input$level]]
-      col.i <- col[ind == i]
-      p <- add_mesh(p, x = c$contour[, 1], y = c$contour[, 2],
-                    z = -c$contour[, 3],
-                    i = c$indx[, 1], j = c$indx[, 2], k = c$indx[, 3],
-                    facecolor = rep(col.i, nrow(c$indx)),
-                    opacity = input$opac,
-                    name = names(ind)[ind == i],
-                    hoverinfo = "name", flatshading = TRUE)
+      
+      indx <- which(ind.files == i & cont.files == input$level)
+      load(files[indx])
+      
+      col.cont <- col[ind == i]
+      name <- names(ind)[ind == i]
+      
+      p <- add_mesh(p, x = contour$contour[, 1], y = contour$contour[, 2],
+                    z = -contour$contour[, 3],
+                    i = contour$indx[, 1], j = contour$indx[, 2], 
+                    k = contour$indx[, 3],
+                    facecolor = rep(col.cont, nrow(contour$indx)),
+                    opacity = input$opac, name = name, hoverinfo = "name",
+                    flatshading = TRUE)
+      
     }
     
     return(p)

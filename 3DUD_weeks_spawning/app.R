@@ -19,14 +19,16 @@ library(plotly)
 # Load topography
 load("./data/topography.rda")
 
-# Load table with dates
-load("./data/dates.rda")
 
-# Load contours of the first week group
-load("./data/contours_spawning_dentex_1.rda")
+# Contour files
+files <- list.files(path = "./data/", pattern = "(cont_)", full.names = TRUE)
+ind.files <- unlist(strsplit(files, "_"))[1:5 == 3]
+week.files <- unlist(strsplit(files, "_"))[1:5 == 4]
+cont.files <- substr(unlist(strsplit(files, "_"))[1:5 == 5], 1, 2)
 
-# List of individuals and colors
-ind <- names(contours.spawn[[1]])
+
+# List of individuals and colors to plot the 3D-UDs
+ind <- unique(ind.files)
 names(ind) <- paste0("Dentex #", substr(ind, start = 7, stop = 9))
 
 col1 <- c("#C22618", "#F08300", "#FFDD06", "#CECE00", "#15892E",
@@ -35,13 +37,24 @@ col1 <- c("#C22618", "#F08300", "#FFDD06", "#CECE00", "#15892E",
 col2 <- c("#E3817D", "#F7B66F", "#FFE97B", "#E8E697", "#9ACCA3",
           "#A8D7CB", "#96D4EC", "#7FB2C9", "#E5ACCD", "#B39FCC",
           "#F5E4DF", "#BFADA1", "#A8A7A7")
+colors <- list(day = col2, night = col1)
+
 
 # Day/Night periods
 diel <- c("Day" = "day", "Night" = "night")
 
 # List of UD probability contours
-prob <- names(contours.spawn[[1]][[1]][[1]])
-names(prob) <- paste0(as.numeric(prob) * 100, "%")
+prob <- unique(cont.files)
+names(prob) <- paste0(prob, "%")
+
+
+# Weeks and days
+weeks <- unique(week.files)
+dates <- data.frame(weeks = weeks,
+                    day = as.Date(strptime(paste0(weeks, "-2"), 
+                                           format = "%Y-%W-%u")) - 2,
+                    stringsAsFactors = FALSE)
+
 
 
 # Define UI for the app tha shows 3D UD for dentex -----------------------------
@@ -164,7 +177,6 @@ server <- function(input, output) {
   # Reactive button to make the plot
   plot <- eventReactive(input$button, {
     
-    
     # Topography
     if (!"topo" %in% input$topofeat) p <- p.notopo
     
@@ -182,21 +194,21 @@ server <- function(input, output) {
     
     # Add individual UD contours
     w <- dates$weeks[dates$day == input$date]
-    date.indx <- dates$indx[dates$day == input$date]
-    load(paste0("./data/contours_spawning_dentex_", date.indx, ".rda"))
     
     for (i in input$ind) {
+      indx <- which(ind.files == i & week.files == w & 
+                      cont.files == input$level)
+      load(files[indx])
+      
       for (d in input$diel) {
-        c <- contours.spawn[[w]][[i]][[d]][[input$level]]
         
-        col.i <- ifelse(d == "day", col2[ind == i], col1[ind == i])
+        name <- paste0(names(ind)[ind == i], "\n", names(diel)[diel == d])
         
-        name =  paste0(names(ind)[ind == i], "\n", names(diel)[diel == d])
-        
-        p <- add_mesh(p, x = c$contour[, 1], y = c$contour[, 2],
-                      z = -c$contour[, 3],
-                      i = c$indx[, 1], j = c$indx[, 2], k = c$indx[, 3],
-                      facecolor = rep(col.i, nrow(c$indx)),
+        p <- add_mesh(p, x = cont[[d]]$contour[, 1], y = cont[[d]]$contour[, 2],
+                      z = -cont[[d]]$contour[, 3],
+                      i = cont[[d]]$indx[, 1], j = cont[[d]]$indx[, 2], 
+                      k = cont[[d]]$indx[, 3],
+                      facecolor = rep(colors[[d]][ind == i], nrow(cont[[d]]$indx)),
                       opacity = input$opac,
                       showlegend = TRUE, name = name, hoverinfo = "name",
                       flatshading = TRUE)
