@@ -1,11 +1,3 @@
----
-title: "Shiny apps to visualize 3D-UDs"
-output: github_document
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
 # Shiny apps to visualize 3D-UDs
 
