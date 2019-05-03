@@ -55,8 +55,8 @@ ui <- fluidPage(
       ))),
 
   # App title ----
-  p("Aspillaga", em ("et al."), "2018.", 
-     em("Methods in Ecology and Evolution."), "Appendix S2.",
+  p("Aspillaga", em("et al."), "2019.", 
+     em("Methods in Ecology and Evolution."), "Appendix S3.",
      style = "font-size:10pt; color: #B6B6B4; line-heigh:20px; 
               margin-bottom:-10pt"),
   headerPanel("3D-UD contours of common dentex individuals"),
@@ -98,7 +98,7 @@ ui <- fluidPage(
     br(),
     helpText("This app is part of the online supporting information of the
              following research paper:"),
-    helpText("Aspillaga E., Safi K., Hereu B. & Bartumeus F. (2018).",
+    helpText("Aspillaga E., Safi K., Hereu B. & Bartumeus F. (2019).",
              strong("Accounting for topography in the 3D space use modelling
              of Eulerian telemetry data."), "Under review in",
              em("Methods in Ecology and Evolution."))

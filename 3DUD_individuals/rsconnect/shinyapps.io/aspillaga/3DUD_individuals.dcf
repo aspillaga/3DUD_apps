@@ -5,8 +5,8 @@ account: aspillaga
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 490930
-bundleId: 1809278
+bundleId: 2057320
 url: https://aspillaga.shinyapps.io/3DUD_individuals/
-when: 1547225673.65765
+when: 1556879277.10424
 asMultiple: FALSE
 asStatic: FALSE

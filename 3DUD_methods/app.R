@@ -40,7 +40,7 @@ col3 <- c("#9B6161", "#AF8255", "#B2A054", "#B2B077", "#779E7D",
 colors <- list(topo = col1, notopo = col2, kde = col3)
 
 labels <- list(topo = "3D-UD - Topography", notopo = "3D-UD - Null Topography",
-               kde = "3D Kernel")
+               kde = "3D - CoA")
 
 # List of UD probability contours
 prob <- unique(cont.files)
@@ -66,7 +66,7 @@ ui <- fluidPage(
       ))),
 
   # App title ----
-  p("Aspillaga", em ("et al."), "2018.", 
+  p("Aspillaga", em("et al."), "2019.", 
     em("Methods in Ecology and Evolution."), "Appendix S3.",
     style = "font-size:10pt; color: #B6B6B4; line-heigh:20px; 
     margin-bottom:-10pt"),
@@ -79,8 +79,9 @@ ui <- fluidPage(
     helpText("This app allows to compare the 3D-UDs of common dentex 
              individuals obtained by applying the new method incorporating
              the topography, by applying the method but using a null topography,
-             and by applying a previous method based only on 3D kernel density
-             estimations."),
+             and by applying a previous method based on calculating centers of 
+             a activity (CoA) and then applying a 3D kernel density 
+             estimation."),
     br(),
     
     # Button to update plot ----
@@ -93,7 +94,7 @@ ui <- fluidPage(
                        h4("Method used to compute 3D-UDs"),
                        choices = list("3D-UD including topography" = "topo",
                                       "3D-UD using a null topography" = "notopo",
-                                      "3D kernel estimation" = "kde"),
+                                      "3D CoA" = "kde"),
                        selected = "topo"),
     
     # Individuals
@@ -118,7 +119,7 @@ ui <- fluidPage(
     br(),
     helpText("This app is part of the online supporting information of the
              following research paper:"),
-    helpText("Aspillaga E., Safi K., Hereu B. & Bartumeus F. (2018).",
+    helpText("Aspillaga E., Safi K., Hereu B. & Bartumeus F. (2019).",
              strong("Accounting for topography in the 3D space use modelling
                     of Eulerian telemetry data."), "Under review in",
              em("Methods in Ecology and Evolution."))

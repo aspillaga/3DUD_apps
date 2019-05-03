@@ -5,8 +5,8 @@ account: aspillaga
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 490964
-bundleId: 1809451
+bundleId: 2057326
 url: https://aspillaga.shinyapps.io/3DUD_weeks_spawning/
-when: 1547232773.68309
+when: 1556879431.84542
 asMultiple: FALSE
 asStatic: FALSE
